@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 只有擁有者本人（已驗證的 Google 帳號）可以寫入。
+    // 請把下面的 email 換成 config.js 裡的 ownerEmail。
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'YOUR_EMAIL@gmail.com';
+    }
+
+    // 商品清單：任何人可讀，只有擁有者可寫
+    match /chiikawa_products/{jan} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // 已購買勾選（單一文件）：任何人可讀，只有擁有者可寫
+    match /chiikawa_meta/{docId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // 若你的專案已有其他網站（例如創作者代碼），請「保留」它原本的 match 區塊，
+    // 只把上面兩個 match 區塊加進去，不要整份取代。
+  }
+}

@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>吉伊卡哇收藏紀錄</title>
+<style>
+:root{
+  --bg:#fbf6f1; --surface:#ffffff; --ink:#3a3535; --muted:#8a8080; --line:#eadfd6;
+  --pink:#f2a0b4; --pink-soft:#fde8ee; --blue:#9fcdea; --blue-soft:#e3f1fa;
+  --green:#4aa37a; --green-soft:#e2f4ea; --warn:#c0562f; --warn-soft:#fbeadf;
+  --shadow:0 1px 2px rgba(80,50,40,.06),0 6px 18px rgba(80,50,40,.06);
+  --radius:16px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1f1b1c; --surface:#2a2526; --ink:#f1e9e6; --muted:#a79c99; --line:#3b3435;
+    --pink:#e58aa1; --pink-soft:#3b2a2f; --blue:#7fb6d6; --blue-soft:#243440;
+    --green:#6cc79c; --green-soft:#223a2f; --warn:#e69068; --warn-soft:#3d2c24;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 "PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+a{color:inherit}
+button,select,input,textarea{font:inherit;color:inherit}
+
+/* header */
+header.top{padding:22px 0 10px}
+.title-row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0;font-size:24px;letter-spacing:.02em}
+h1 small{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid transparent}
+.badge.view{background:var(--blue-soft);color:var(--ink);border-color:var(--blue)}
+.badge.edit{background:var(--green-soft);color:var(--green);border-color:var(--green)}
+.badge.demo{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;cursor:pointer;min-height:36px}
+.btn:hover{border-color:var(--pink)}
+.btn.primary{background:var(--pink);border-color:var(--pink);color:#3a2428;font-weight:600}
+.btn.danger{color:var(--warn)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.card.editable:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.notice{margin:10px 0 0;padding:9px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn);font-size:13.5px}
+.notice[hidden]{display:none}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:24px;line-height:1.2}
+.stat span{font-size:13px;color:var(--muted)}
+.progress{height:10px;border-radius:99px;background:var(--pink-soft);overflow:hidden;border:1px solid var(--line)}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--blue));transition:width .3s}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:6px 2px 0}
+
+/* filters */
+.filters{background:var(--bg);padding:12px 0 10px;margin-top:10px;border-bottom:1px solid var(--line)}
+@media (min-width:900px){.filters{position:sticky;top:0;z-index:5}}
+.f-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.f-row + .f-row{margin-top:8px}
+.search{flex:1 1 220px;min-width:0;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+select{padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);max-width:100%;min-height:38px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:8px 14px;cursor:pointer;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--pink);color:#3a2428;font-weight:600}
+.result-line{display:flex;justify-content:space-between;color:var(--muted);font-size:13.5px;margin:12px 2px 8px}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;padding-bottom:20px}
+@media (max-width:420px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card.editable{cursor:pointer}
+.card.is-bought{border-color:var(--green);background:linear-gradient(var(--green-soft),var(--surface) 55%)}
+.thumb{position:relative;aspect-ratio:1/1;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+.check{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:rgba(255,255,255,.92);color:transparent;display:grid;place-items:center;font-size:18px;font-weight:700;padding:0;cursor:pointer}
+.check:disabled{cursor:default}
+.card.is-bought .check{background:var(--green);border-color:var(--green);color:#fff}
+.card:not(.editable):not(.is-bought) .check{display:none}
+.stock{position:absolute;left:8px;top:8px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.92);color:#444}
+.stock.in{color:var(--green)} .stock.out{color:var(--warn)}
+.ribbon{position:absolute;left:0;bottom:0;background:var(--green);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-top-right-radius:10px}
+.body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.body h3{margin:0;font-size:14px;line-height:1.4;font-weight:600;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--blue-soft);border:1px solid transparent}
+.tag.series{background:var(--pink-soft)}
+.tag.batch{background:transparent;border-color:var(--line);color:var(--muted)}
+.body a.link{margin-top:auto;font-size:12.5px;color:var(--muted);text-decoration:none}
+.body a.link:hover{text-decoration:underline;color:var(--ink)}
+.empty{text-align:center;color:var(--muted);padding:50px 10px;grid-column:1/-1}
+.more{display:block;margin:6px auto 26px}
+
+/* owner tools */
+details.tools{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:4px 16px;margin:6px 0 22px;box-shadow:var(--shadow)}
+details.tools summary{cursor:pointer;padding:12px 0;font-weight:700}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;padding:6px 0 16px}
+.tool{border:1px dashed var(--line);border-radius:12px;padding:12px}
+.tool h3{margin:0 0 6px;font-size:15px}
+.tool p{margin:0 0 8px;color:var(--muted);font-size:13px}
+textarea{width:100%;min-height:90px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.preview{margin-top:8px;font-size:13px;background:var(--bg);border-radius:10px;padding:8px 10px;white-space:pre-wrap}
+.preview.err{color:var(--warn)}
+
+footer{color:var(--muted);font-size:12.5px;padding:10px 0 40px;border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw;font-size:14px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title-row">
+      <h1 id="siteTitle">吉伊卡哇收藏紀錄<small>已入手／未入手一覽，資料來源為手動整理</small></h1>
+      <div class="actions">
+        <span id="modeBadge" class="badge view">載入中…</span>
+        <button id="btnShare" class="btn" type="button">複製分享連結</button>
+        <button id="btnAuth" class="btn" type="button" hidden>擁有者登入</button>
+      </div>
+    </div>
+    <div id="notice" class="notice" hidden></div>
+    <div class="stats" aria-live="polite">
+      <div class="stat"><b id="stTotal">0</b><span>商品總數</span></div>
+      <div class="stat"><b id="stBought">0</b><span>已入手</span></div>
+      <div class="stat"><b id="stTodo">0</b><span>未入手</span></div>
+    </div>
+    <div class="progress" role="progressbar" aria-label="收集進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="bar"></i></div>
+    <div class="progress-label"><span id="pctText">收集進度 0%</span><span id="syncText"></span></div>
+  </header>
+
+  <section class="filters" aria-label="篩選">
+    <div class="f-row">
+      <input id="q" class="search" type="search" placeholder="搜尋名稱、角色、JAN 碼…" aria-label="搜尋">
+      <div class="seg" role="group" aria-label="購買狀態">
+        <button type="button" data-status="all" aria-pressed="true">全部</button>
+        <button type="button" data-status="todo" aria-pressed="false">未入手</button>
+        <button type="button" data-status="bought" aria-pressed="false">已入手</button>
+      </div>
+    </div>
+    <div class="f-row">
+      <select id="fCharacter" aria-label="角色"></select>
+      <select id="fSeries" aria-label="系列"></select>
+      <select id="fType" aria-label="類型"></select>
+      <select id="fBatch" aria-label="批次"></select>
+      <select id="fStock" aria-label="庫存">
+        <option value="">庫存：全部</option>
+        <option value="in">有庫存</option>
+        <option value="out">售罄</option>
+        <option value="unknown">未知</option>
+      </select>
+      <select id="fSort" aria-label="排序">
+        <option value="batch_desc">排序：批次新→舊</option>
+        <option value="batch_asc">排序：批次舊→新</option>
+        <option value="name">排序：名稱</option>
+        <option value="todo_first">排序：未入手優先</option>
+        <option value="bought_first">排序：已入手優先</option>
+      </select>
+      <button id="btnReset" class="btn" type="button">清除篩選</button>
+    </div>
+  </section>
+
+  <div class="result-line"><span id="resultText"></span><span id="editHint"></span></div>
+  <main id="grid" class="grid" aria-live="polite"></main>
+  <button id="btnMore" class="btn more" type="button" hidden>載入更多</button>
+
+  <details id="tools" class="tools" hidden>
+    <summary>擁有者工具（匯入、匯出、批次勾選）</summary>
+    <div class="tool-grid">
+      <div class="tool">
+        <h3>匯入商品資料（CSV）</h3>
+        <p>欄位：jan, name, character, series, type, url, image, batch, stock。以 JAN 為主鍵，只新增或更新商品欄位，<b>不會動到你的勾選</b>。可直接從 Google 試算表複製貼上。</p>
+        <textarea id="importText" placeholder="貼上 CSV 或試算表內容…" aria-label="貼上 CSV"></textarea>
+        <div class="row">
+          <input id="importFile" type="file" accept=".csv,.tsv,.txt,text/csv" aria-label="選擇 CSV 檔案">
+          <button id="btnTemplate" class="btn" type="button">下載範本</button>
+        </div>
+        <div id="importPreview" class="preview" hidden></div>
+        <div class="row"><button id="btnImport" class="btn primary" type="button" disabled>確認匯入</button></div>
+      </div>
+      <div class="tool">
+        <h3>備份與還原</h3>
+        <p>匯出目前的商品清單與「已入手」名單。換資料來源或不放心時先備份。</p>
+        <div class="row">
+          <button id="btnExportProducts" class="btn" type="button">匯出商品 CSV</button>
+          <button id="btnExportBought" class="btn" type="button">匯出已入手 CSV</button>
+        </div>
+        <p style="margin-top:12px">還原已入手名單（CSV 內有 jan 欄位即可）：</p>
+        <input id="restoreFile" type="file" accept=".csv,.txt,text/csv" aria-label="選擇已入手備份">
+      </div>
+      <div class="tool">
+        <h3>批次勾選</h3>
+        <p>對「目前篩選出來的商品」一次標記，適合補登舊紀錄（例如先篩選一個系列）。</p>
+        <div class="row">
+          <button id="btnBulkOn" class="btn" type="button">全部標為已入手</button>
+          <button id="btnBulkOff" class="btn danger" type="button">全部取消入手</button>
+        </div>
+        <p id="bulkInfo" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </details>
+
+  <footer>
+    本站為個人整理的非官方收藏紀錄，與官方無關。商品名稱、圖片與角色版權屬 ©nagano／©nagano / chiikawa committee／©Gray Parka Service，圖片以官方連結引用，不另行儲存。
+  </footer>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<script type="module">
+import { CONFIG } from './config.js';
+
+/* ---------- helpers ---------- */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl = (u) => { try { const x = new URL(String(u).trim()); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; } };
+const splitVals = (s) => String(s ?? '').split(/[|、；;]/).map(x => x.trim()).filter(Boolean);
+const batchKey = (b) => { const m = String(b ?? '').match(/\d{6,8}/); return m ? Number(m[0]) : 0; };
+let toastTimer;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2600); }
+function download(name, text){
+  const blob = new Blob(['﻿' + text], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+  text = String(text).replace(/^﻿/, '');
+  const first = text.split(/\r?\n/, 1)[0] || '';
+  const delim = first.includes('\t') ? '\t' : ',';
+  const rows = []; let row = [], cell = '', inQ = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (inQ){
+      if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else inQ = false; }
+      else cell += c;
+    } else if (c === '"' && cell === ''){ inQ = true; }
+    else if (c === delim){ row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r'){ if (c === '\r' && text[i+1] === '\n') i++; row.push(cell); cell = ''; rows.push(row); row = []; }
+    else cell += c;
+  }
+  if (cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ''));
+}
+function toCSV(rows){
+  return rows.map(r => r.map(v => { v = String(v ?? ''); return /[",\n\r\t]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }).join(',')).join('\r\n');
+}
+const ALIASES = {
+  jan:['jan','jan碼','jancode','條碼','barcode','sku','id','商品編號'],
+  name:['name','名稱','商品名稱','商品名','title'],
+  character:['character','characters','角色'],
+  series:['series','系列'],
+  type:['type','類型','類別','分類','producttype','category'],
+  url:['url','連結','官網連結','link'],
+  image:['image','圖片','圖片網址','img','imageurl','image_url'],
+  batch:['batch','批次','批次標籤','tag'],
+  stock:['stock','庫存','庫存狀況','available']
+};
+const normHead = (h) => String(h).toLowerCase().replace(/[\s_\-]/g,'');
+function mapHeader(headRow){
+  const idx = {};
+  headRow.forEach((h, i) => {
+    const n = normHead(h);
+    for (const [k, list] of Object.entries(ALIASES)) if (idx[k] === undefined && list.map(normHead).includes(n)) idx[k] = i;
+  });
+  return idx;
+}
+function parseStock(v){
+  v = String(v ?? '').trim().toLowerCase();
+  if (!v) return undefined;
+  if (['1','true','yes','有庫存','有','instock','in_stock','in stock','available'].includes(v)) return true;
+  if (['0','false','no','售罄','無庫存','無','缺貨','soldout','sold_out','sold out','outofstock'].includes(v)) return false;
+  return undefined;
+}
+function rowsToProducts(rows){
+  if (!rows.length) return {products:[], skipped:0, error:'沒有讀到任何資料'};
+  const idx = mapHeader(rows[0]);
+  if (idx.jan === undefined && idx.url === undefined) return {products:[], skipped:0, error:'找不到 jan（或 url）欄位，請確認第一列是欄位名稱'};
+  const out = new Map(); let skipped = 0;
+  for (const r of rows.slice(1)){
+    const get = (k) => idx[k] === undefined ? '' : String(r[idx[k]] ?? '').trim();
+    let jan = get('jan').replace(/\D/g,'');
+    if (!jan){ const m = get('url').match(/\/products\/(\d{8,14})/); if (m) jan = m[1]; }
+    const name = get('name');
+    if (!jan || !name){ skipped++; continue; }
+    const p = {jan, name};
+    for (const k of ['character','series','type','batch']) if (get(k)) p[k] = get(k);
+    if (safeUrl(get('url'))) p.url = safeUrl(get('url'));
+    if (safeUrl(get('image'))) p.image = safeUrl(get('image'));
+    const st = parseStock(get('stock')); if (st !== undefined) p.stock = st;
+    out.set(jan, p);
+  }
+  return {products:[...out.values()], skipped};
+}
+
+/* ---------- state ---------- */
+const state = {
+  products: new Map(), purchased: {}, owner:false, user:null, mode:'demo', ready:false,
+  filters:{q:'', status:'all', character:'', series:'', type:'', batch:'', stock:''},
+  sort:'batch_desc', shown:60, pendingImport:[]
+};
+const PAGE = 60;
+
+/* ---------- backends ---------- */
+let backend;
+const configured = !!(CONFIG.firebase?.apiKey && CONFIG.firebase?.projectId && CONFIG.ownerEmail);
+
+const demoBackend = {
+  mode:'demo',
+  async init(){
+    const L = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+    let list = L('chiikawa_demo_products');
+    if (!Array.isArray(list)){
+      list = [];
+      try {
+        const res = await fetch('sample-products.csv', {cache:'no-store'});
+        if (res.ok) list = rowsToProducts(parseCSV(await res.text())).products;
+      } catch {}
+    }
+    list.forEach(p => state.products.set(p.jan, p));
+    state.purchased = L('chiikawa_demo_purchased') || {};
+    state.owner = true;
+  },
+  persist(){
+    try {
+      localStorage.setItem('chiikawa_demo_products', JSON.stringify([...state.products.values()]));
+      localStorage.setItem('chiikawa_demo_purchased', JSON.stringify(state.purchased));
+    } catch {}
+  },
+  async savePurchased(map){ Object.assign(state.purchased, map); this.persist(); },
+  async upsertProducts(list){ list.forEach(p => state.products.set(p.jan, {...(state.products.get(p.jan)||{}), ...p})); this.persist(); },
+  signIn(){}, signOut(){}
+};
+
+async function makeCloudBackend(){
+  const V = '10.14.1', base = `https://www.gstatic.com/firebasejs/${V}/`;
+  const [appM, authM, fs] = await Promise.all([
+    import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')
+  ]);
+  const app = appM.initializeApp(CONFIG.firebase);
+  let db;
+  try { db = fs.initializeFirestore(app, {localCache: fs.persistentLocalCache({tabManager: fs.persistentMultipleTabManager()})}); }
+  catch { db = fs.getFirestore(app); }
+  const auth = authM.getAuth(app);
+  const owner = (u) => !!u && !!u.email && u.email.toLowerCase() === CONFIG.ownerEmail.toLowerCase();
+  return {
+    mode:'cloud',
+    async init(){
+      await new Promise((resolve) => {
+        const seen = new Set(); const done = (k) => { seen.add(k); if (seen.size === 3) resolve(); };
+        fs.onSnapshot(fs.collection(db, 'chiikawa_products'), (snap) => {
+          snap.docChanges().forEach(ch => {
+            if (ch.type === 'removed') state.products.delete(ch.doc.id);
+            else state.products.set(ch.doc.id, {...ch.doc.data(), jan: ch.doc.id});
+          });
+          $('syncText').textContent = snap.metadata.fromCache ? '離線資料' : '已同步';
+          if (state.ready) scheduleRender(); else done('p');
+        }, (e) => { console.error(e); showNotice('讀取商品資料失敗：' + e.code); done('p'); });
+        fs.onSnapshot(fs.doc(db, 'chiikawa_meta', 'purchased'), (snap) => {
+          state.purchased = (snap.exists() && snap.data().jans) || {};
+          if (state.ready) scheduleRender(); else done('m');
+        }, (e) => { console.error(e); done('m'); });
+        authM.onAuthStateChanged(auth, (u) => {
+          state.user = u; state.owner = owner(u);
+          if (state.ready) { updateChrome(); scheduleRender(); } else done('a');
+        });
+      });
+    },
+    async savePurchased(map){ await fs.setDoc(fs.doc(db, 'chiikawa_meta', 'purchased'), {jans: map}, {merge:true}); },
+    async upsertProducts(list){
+      for (let i = 0; i < list.length; i += 400){
+        const b = fs.writeBatch(db);
+        list.slice(i, i + 400).forEach(p => b.set(fs.doc(db, 'chiikawa_products', p.jan), p, {merge:true}));
+        await b.commit();
+      }
+    },
+    signIn(){ return authM.signInWithPopup(auth, new authM.GoogleAuthProvider()); },
+    signOut(){ return authM.signOut(auth); }
+  };
+}
+
+/* ---------- derived ---------- */
+function facet(key){
+  const m = new Map();
+  for (const p of state.products.values()) for (const v of splitVals(p[key])) m.set(v, (m.get(v) || 0) + 1);
+  const arr = [...m.entries()];
+  if (key === 'batch') return arr.sort((a,b) => batchKey(b[0]) - batchKey(a[0]) || a[0].localeCompare(b[0]));
+  return arr.sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh-Hant'));
+}
+function fillSelect(id, key, label){
+  const sel = $(id), opts = facet(key), cur = state.filters[key];
+  sel.hidden = opts.length === 0;
+  sel.innerHTML = `<option value="">${label}：全部</option>` + opts.map(([v,n]) => `<option value="${esc(v)}">${esc(v)} (${n})</option>`).join('');
+  if (cur && !opts.some(([v]) => v === cur)) state.filters[key] = '';
+  sel.value = state.filters[key];
+}
+function matches(p){
+  const f = state.filters, bought = !!state.purchased[p.jan];
+  if (f.status === 'bought' && !bought) return false;
+  if (f.status === 'todo' && bought) return false;
+  for (const k of ['character','series','type','batch']) if (f[k] && !splitVals(p[k]).includes(f[k])) return false;
+  if (f.stock === 'in' && p.stock !== true) return false;
+  if (f.stock === 'out' && p.stock !== false) return false;
+  if (f.stock === 'unknown' && typeof p.stock === 'boolean') return false;
+  if (f.q){
+    const hay = [p.name, p.jan, p.character, p.series, p.type, p.batch].join(' ').toLowerCase();
+    for (const t of f.q.toLowerCase().split(/\s+/).filter(Boolean)) if (!hay.includes(t)) return false;
+  }
+  return true;
+}
+function sorted(list){
+  const nm = (a,b) => a.name.localeCompare(b.name, 'zh-Hant');
+  const B = (p) => state.purchased[p.jan] ? 1 : 0;
+  const fn = {
+    batch_desc:(a,b) => batchKey(b.batch) - batchKey(a.batch) || nm(a,b),
+    batch_asc:(a,b) => batchKey(a.batch) - batchKey(b.batch) || nm(a,b),
+    name:nm,
+    todo_first:(a,b) => B(a) - B(b) || nm(a,b),
+    bought_first:(a,b) => B(b) - B(a) || nm(a,b)
+  }[state.sort] || nm;
+  return list.sort(fn);
+}
+
+/* ---------- render ---------- */
+let rafId = 0;
+function scheduleRender(){ cancelAnimationFrame(rafId); rafId = requestAnimationFrame(render); }
+let currentList = [];
+
+function cardHTML(p){
+  const bought = !!state.purchased[p.jan], edit = state.owner;
+  const img = safeUrl(p.image), url = safeUrl(p.url);
+  const stock = p.stock === true ? '<span class="stock in">有庫存</span>' : p.stock === false ? '<span class="stock out">售罄</span>' : '';
+  const tags = [
+    ...splitVals(p.character).map(v => `<span class="tag">${esc(v)}</span>`),
+    ...splitVals(p.series).map(v => `<span class="tag series">${esc(v)}</span>`),
+    ...splitVals(p.type).map(v => `<span class="tag">${esc(v)}</span>`),
+    ...splitVals(p.batch).map(v => `<span class="tag batch">${esc(v)}</span>`)
+  ].join('');
+  return `<article class="card${bought?' is-bought':''}${edit?' editable':''}" data-jan="${esc(p.jan)}"${edit?' tabindex="0"':''}>
+    <div class="thumb">
+      ${img ? `<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<div class="ph">無圖片</div>`}
+      ${stock}
+      <button class="check" type="button" role="checkbox" aria-checked="${bought}" aria-label="已入手：${esc(p.name)}" ${edit?'':'disabled tabindex="-1"'}>✓</button>
+      ${bought ? '<span class="ribbon">已入手</span>' : ''}
+    </div>
+    <div class="body">
+      <h3>${esc(p.name)}</h3>
+      <div class="tags">${tags}</div>
+      ${url ? `<a class="link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">官網頁面 ↗</a>` : ''}
+    </div>
+  </article>`;
+}
+function updateStats(){
+  const all = [...state.products.keys()];
+  const b = all.filter(j => state.purchased[j]).length;
+  $('stTotal').textContent = all.length; $('stBought').textContent = b; $('stTodo').textContent = all.length - b;
+  const pct = all.length ? Math.round(b / all.length * 100) : 0;
+  $('bar').style.width = pct + '%'; $('pctText').textContent = `收集進度 ${pct}%`;
+  document.querySelector('.progress').setAttribute('aria-valuenow', pct);
+}
+function render(){
+  fillSelect('fCharacter','character','角色'); fillSelect('fSeries','series','系列');
+  fillSelect('fType','type','類型'); fillSelect('fBatch','batch','批次');
+  currentList = sorted([...state.products.values()].filter(matches));
+  const slice = currentList.slice(0, state.shown);
+  $('grid').innerHTML = slice.length ? slice.map(cardHTML).join('')
+    : `<div class="empty">${state.products.size ? '沒有符合條件的商品' : '還沒有商品資料。' + (state.owner ? '請展開下方「擁有者工具」匯入 CSV。' : '')}</div>`;
+  $('btnMore').hidden = currentList.length <= state.shown;
+  $('btnMore').textContent = `載入更多（還有 ${currentList.length - state.shown} 項）`;
+  $('resultText').textContent = `顯示 ${slice.length} / ${currentList.length} 項`;
+  $('editHint').textContent = state.owner ? '點商品卡片即可切換「已入手」' : '';
+  $('bulkInfo').textContent = `目前篩選：${currentList.length} 項`;
+  updateStats();
+}
+function updateChrome(){
+  const badge = $('modeBadge'), auth = $('btnAuth');
+  $('tools').hidden = !state.owner;
+  if (state.mode === 'demo'){
+    badge.className = 'badge demo'; badge.textContent = '示範模式';
+    auth.hidden = true;
+    showNotice('示範模式：尚未設定 Firebase，資料只存在這個瀏覽器，不會同步給其他人。設定方式請見 README.md。');
+  } else if (state.owner){
+    badge.className = 'badge edit'; badge.textContent = '編輯模式';
+    auth.hidden = false; auth.textContent = '登出'; showNotice('');
+  } else if (state.user){
+    badge.className = 'badge view'; badge.textContent = '唯讀檢視';
+    auth.hidden = false; auth.textContent = '登出';
+    showNotice('目前登入的帳號（' + (state.user.email || '') + '）沒有編輯權限，只能檢視。');
+  } else {
+    badge.className = 'badge view'; badge.textContent = '唯讀檢視';
+    auth.hidden = false; auth.textContent = '擁有者登入'; showNotice('');
+  }
+}
+function showNotice(msg){ const n = $('notice'); n.textContent = msg; n.hidden = !msg; }
+
+/* ---------- actions ---------- */
+async function setPurchased(map){
+  const prev = {};
+  for (const j of Object.keys(map)) prev[j] = state.purchased[j];
+  Object.assign(state.purchased, map);
+  scheduleRender();
+  try { await backend.savePurchased(map); }
+  catch (e) {
+    console.error(e);
+    for (const j of Object.keys(prev)) { if (prev[j] === undefined) delete state.purchased[j]; else state.purchased[j] = prev[j]; }
+    scheduleRender(); toast('儲存失敗：' + (e.code || e.message));
+  }
+}
+function toggle(jan){ if (state.owner) setPurchased({[jan]: !state.purchased[jan]}); }
+
+$('grid').addEventListener('click', (e) => {
+  if (e.target.closest('a')) return;
+  const card = e.target.closest('.card'); if (card) toggle(card.dataset.jan);
+});
+$('grid').addEventListener('keydown', (e) => {
+  if ((e.key === ' ' || e.key === 'Enter') && e.target.classList.contains('card')){ e.preventDefault(); toggle(e.target.dataset.jan); }
+});
+// 圖片載入失敗時換成文字占位
+$('grid').addEventListener('error', (e) => {
+  if (e.target.tagName === 'IMG'){ const d = document.createElement('div'); d.className = 'ph'; d.textContent = '圖片無法載入'; e.target.replaceWith(d); }
+}, true);
+
+const resetShown = () => { state.shown = PAGE; };
+let qTimer;
+$('q').addEventListener('input', (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.filters.q = e.target.value.trim(); resetShown(); scheduleRender(); }, 150); });
+for (const [id, key] of [['fCharacter','character'],['fSeries','series'],['fType','type'],['fBatch','batch'],['fStock','stock']])
+  $(id).addEventListener('change', (e) => { state.filters[key] = e.target.value; resetShown(); scheduleRender(); });
+$('fSort').addEventListener('change', (e) => { state.sort = e.target.value; resetShown(); scheduleRender(); });
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  state.filters.status = b.dataset.status;
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  resetShown(); scheduleRender();
+}));
+$('btnReset').addEventListener('click', () => {
+  Object.assign(state.filters, {q:'', status:'all', character:'', series:'', type:'', batch:'', stock:''});
+  $('q').value = ''; $('fStock').value = '';
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.status === 'all')));
+  resetShown(); scheduleRender();
+});
+$('btnMore').addEventListener('click', () => { state.shown += PAGE; scheduleRender(); });
+$('btnShare').addEventListener('click', async () => {
+  const url = location.origin + location.pathname;
+  try { await navigator.clipboard.writeText(url); toast('已複製連結，對方打開就是唯讀檢視'); }
+  catch { prompt('複製這個連結：', url); }
+});
+$('btnAuth').addEventListener('click', async () => {
+  try { if (state.user) await backend.signOut(); else await backend.signIn(); }
+  catch (e) { toast('登入失敗：' + (e.code || e.message)); }
+});
+
+/* ---- owner tools ---- */
+function refreshImportPreview(){
+  const pv = $('importPreview'), btn = $('btnImport'), text = $('importText').value;
+  state.pendingImport = []; btn.disabled = true;
+  if (!text.trim()){ pv.hidden = true; return; }
+  const r = rowsToProducts(parseCSV(text));
+  pv.hidden = false;
+  if (r.error){ pv.className = 'preview err'; pv.textContent = r.error; return; }
+  const fresh = r.products.filter(p => !state.products.has(p.jan)).length;
+  pv.className = 'preview';
+  pv.textContent = `讀到 ${r.products.length} 筆商品：新增 ${fresh}、更新 ${r.products.length - fresh}` + (r.skipped ? `；略過 ${r.skipped} 列（缺 JAN 或名稱）` : '');
+  state.pendingImport = r.products; btn.disabled = r.products.length === 0;
+}
+$('importText').addEventListener('input', refreshImportPreview);
+$('importFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  $('importText').value = await f.text(); refreshImportPreview(); e.target.value = '';
+});
+$('btnImport').addEventListener('click', async () => {
+  const list = state.pendingImport; if (!list.length) return;
+  $('btnImport').disabled = true;
+  try {
+    await backend.upsertProducts(list);
+    if (backend.mode === 'cloud') list.forEach(p => state.products.set(p.jan, {...(state.products.get(p.jan)||{}), ...p}));
+    $('importText').value = ''; refreshImportPreview(); scheduleRender();
+    toast(`已匯入 ${list.length} 筆商品`);
+  } catch (e) { console.error(e); toast('匯入失敗：' + (e.code || e.message)); $('btnImport').disabled = false; }
+});
+$('btnTemplate').addEventListener('click', () => download('chiikawa-import-template.csv', toCSV([
+  ['jan','name','character','series','type','url','image','batch','stock'],
+  ['4571609388470','商品名稱範例','吉伊卡哇','系列名稱','鑰匙圈','https://chiikawamarket.jp/zh-hant/products/4571609388470','https://chiikawamarket.jp/cdn/shop/files/4571609388470_1.jpg','re20261119','有庫存']
+])));
+$('btnExportProducts').addEventListener('click', () => {
+  const rows = [['jan','name','character','series','type','url','image','batch','stock']];
+  for (const p of state.products.values()) rows.push([p.jan, p.name, p.character, p.series, p.type, p.url, p.image, p.batch, p.stock === true ? '有庫存' : p.stock === false ? '售罄' : '']);
+  download('chiikawa-products.csv', toCSV(rows));
+});
+$('btnExportBought').addEventListener('click', () => {
+  const rows = [['jan','name','purchased']];
+  for (const [jan, v] of Object.entries(state.purchased)) if (v) rows.push([jan, state.products.get(jan)?.name || '', 'true']);
+  download('chiikawa-purchased.csv', toCSV(rows));
+});
+$('restoreFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const rows = parseCSV(await f.text()); e.target.value = '';
+  const idx = mapHeader(rows[0] || []); const pi = (rows[0] || []).findIndex(h => ['purchased','已入手','bought'].includes(normHead(h)));
+  if (idx.jan === undefined){ toast('找不到 jan 欄位'); return; }
+  const map = {};
+  for (const r of rows.slice(1)){
+    const jan = String(r[idx.jan] ?? '').replace(/\D/g,''); if (!jan) continue;
+    const v = pi < 0 ? true : !['0','false','no',''].includes(String(r[pi]).trim().toLowerCase());
+    map[jan] = v;
+  }
+  if (!Object.keys(map).length){ toast('沒有可還原的資料'); return; }
+  await setPurchased(map); toast(`已還原 ${Object.keys(map).length} 筆勾選`);
+});
+async function bulk(val){
+  if (!currentList.length) return;
+  if (!confirm(`確定要把目前篩選的 ${currentList.length} 項商品全部${val ? '標為已入手' : '取消入手'}？`)) return;
+  const map = {}; currentList.forEach(p => { map[p.jan] = val; });
+  await setPurchased(map); toast(`已更新 ${currentList.length} 項`);
+}
+$('btnBulkOn').addEventListener('click', () => bulk(true));
+$('btnBulkOff').addEventListener('click', () => bulk(false));
+
+/* ---------- boot ---------- */
+(async function boot(){
+  document.title = CONFIG.siteTitle || document.title;
+  $('siteTitle').firstChild.textContent = CONFIG.siteTitle || '吉伊卡哇收藏紀錄';
+  try {
+    backend = configured ? await makeCloudBackend() : demoBackend;
+  } catch (e) {
+    console.error(e); backend = demoBackend; showNotice('Firebase 載入失敗，已退回示範模式：' + e.message);
+  }
+  state.mode = backend.mode;
+  await backend.init();
+  state.ready = true;
+  updateChrome(); render();
+})();
+</script>
+</body>
+</html>
